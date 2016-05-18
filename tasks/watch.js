@@ -38,24 +38,29 @@ module.exports = function(options) {
 	gulp.task('watch', function() {
 		if (themeConfig.version == '6.2') {
 			startWatch();
+
+			return;
 		}
-		else {
-			store.set('appServerPathTheme', webBundleDir);
 
-			runSequence('build', 'watch:clean', 'watch:setup', function() {
-				var watchSocket = startWatchSocket();
+		store.set('appServerPathTheme', webBundleDir);
 
-				watchSocket.connect(CONNECT_PARAMS)
-					.then(function() {
-						return watchSocket.deploy();
-					})
-					.then(function() {
-						store.set('webBundleDir', 'watching');
+		var watchSocket = startWatchSocket();
 
-						startWatch();
-					});
+		watchSocket.connect(CONNECT_PARAMS)
+			.then(function() {
+				return watchSocket.stopWatchBundle();
+			})
+			.then(function(data) {
+				runSequence('build', 'watch:clean', 'watch:setup', function() {
+					watchSocket.deploy()
+						.then(function() {
+							store.set('webBundleDir', 'watching');
+
+							startWatch();
+						});
+				});
 			});
-		}
+
 	});
 
 	gulp.task('watch:clean', function(cb) {
