@@ -50,6 +50,8 @@ module.exports = function(options) {
 			'build:remove-old-css-dir',
 			'build:fix-at-directives',
 			'build:r2',
+            'build:svg:delete',
+            'build:svg',
 			'build:war',
 			cb
 		);
@@ -318,7 +320,20 @@ module.exports = function(options) {
 		runSequence.apply(this, sequence);
 	});
 
-	function getSrcPathConfig() {
+    gulp.task('build:svg:delete', function() {
+        return del([pathBuild + '/images/lexicon/icons.svg']);
+    });
+
+    gulp.task('build:svg', function() {
+        var svgstore = require('../lib/svgstore');
+        return svgstore(gulp, plugins, _, {
+            dest: pathBuild + '/images/lexicon/',
+            src: pathBuild + '/images/lexicon/*.svg',
+            targetName: 'icons.svg'
+        });
+    });
+
+    function getSrcPathConfig() {
 		return {
 			changedFile: store.get('changedFile'),
 			deployed: store.get('deployed'),
